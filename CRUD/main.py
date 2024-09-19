@@ -8,6 +8,9 @@ from fastapi.responses import HTMLResponse
 from db import Task, create_db_and_tables, engine, readAllTasks, createTask, deleteTask, authUser
 
 app = FastAPI()
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
 # ver login
 templates = Jinja2Templates(directory="templates")
@@ -47,3 +50,4 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/add-task", response_class=HTMLResponse)
 async def add_task_page(req: Request):
     return templates.TemplateResponse("add-task.html", {"request": req})
+

@@ -7,7 +7,7 @@ load_dotenv('.env')
 # sqlite_file_name = "database.db"
 sqlite_url = os.getenv('DATABASE_URL')
 
-# connect_args = {"check_same_thread": False}
+# connect_args
 engine = create_engine(sqlite_url, echo=True)
 
 def create_db_and_tables():

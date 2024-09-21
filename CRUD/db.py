@@ -51,6 +51,17 @@ def deleteTask(id:int):
         session.commit()
         return task
 
+def updateTask(updated_task: Task):
+    with Session(engine) as session:
+        task = session.exec(select(Task).where(Task.id == updated_task.id)).first()
+        if task:
+            task.title = updated_task.title
+            task.description = updated_task.description
+            task.img_url = updated_task.img_url
+            session.commit()
+            return task
+        return None
+
 
 
 def authUser(attemptEmail, attemptPassword):

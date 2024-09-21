@@ -5,23 +5,32 @@
 {% block content %}
 <div class="container my-5">
     <div class="card shadow-lg">
+        <div class="ms-auto">
+            <a href="https://upgraded-space-barnacle-vjxvqppj4rx2pp4x-8000.app.github.dev/logout">
+                <svg id="i-signout" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                    <path d="M28 16 L8 16 M20 8 L28 16 20 24 M11 28 L3 28 3 4 11 4" />
+                </svg>
+            </a>
+        </div>
+        
         <div class="card-header bg-primary text-white">
             <h1 class="text-center mb-0">My Task List</h1>
         </div>
         <div class="card-body">
             <ul class="list-group">
+                {% for task in tasks %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>Task 1</span>
-                    <span class="badge bg-success rounded-pill">Complete</span>
+                   <img src="{{ task.img_url }}" alt="{{ task.title }}" style="width: 50px; height: 50px; margin-right: 10px;">
+                    <span>{{ task.title }}</span>
+                    <span>{{ task.description }}</span>
+                    <a href="/edit-task/{{ task.id }}">
+                        <div class="btn btn-primary"style="margin-right: 5px;" >Editar</div>
+                    </a>
+                    <form method="POST" action="/delete-task/{{ task.id }}" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
                 </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>Task 2</span>
-                    <span class="badge bg-warning rounded-pill">In Progress</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>Task 3</span>
-                    <span class="badge bg-danger rounded-pill">Pending</span>
-                </li>
+                {% endfor %}
             </ul>
         </div>
         <div class="card-footer text-center">
@@ -29,6 +38,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
+
 

@@ -33,8 +33,9 @@ async def authlogin(email: Annotated[str, Form()], password: Annotated[str, Form
     authenticatedUserId = authUser(email,password) 
 
     if authenticatedUserId != None:
-        res.set_cookie('cookieUserId', str(authenticatedUserId), httponly=True, secure=False)
+        #res.set_cookie('cookieUserId', authenticatedUserId)
         response = RedirectResponse(url="/tasks", status_code=303)
+        response.set_cookie('cookieUserId', authenticatedUserId)
         return response
                                                 
     res.status_code = 400
@@ -44,28 +45,30 @@ async def authlogin(email: Annotated[str, Form()], password: Annotated[str, Form
 @app.get("/logout")
 async def authlogout(res:Response):
     print("Eliminando cookie")
-    res.delete_cookie('cookieUserId')
+    # res.delete_cookie('cookieUserId')
     print("Cookie eliminada")
     response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie('cookieUserId')
     return response
 
-####decorador para autenticacion##
+"""
+res.status_code = 200
+res.set_cookie('cookieUserId', authenticatedUserId)
+return 'Login exitoso!'
+"""
+
+
+####funcion para autenticacion##
 def require_authentication(request: Request):
     if 'cookieUserId' not in request.cookies:
         raise HTTPException(status_code=403, detail="No autenticado")
-
-def auth_required(func):
-    async def wrapper(request: Request, *args, **kwargs):
-        require_authentication(request)
-        return await func(request, *args, **kwargs)
-    return wrapper
-
+    return request.cookies['cookieUserId']
 
 # ver tareas
 templates = Jinja2Templates(directory="templates")
-@auth_required
 @app.get("/tasks", response_class=HTMLResponse)
 async def root(request: Request, search: str = ''):
+    user_id = require_authentication(request)
     tasks = readAllTasks(search) 
     return templates.TemplateResponse("tasks.html", {"request": request,"tasks": tasks})
 
@@ -74,10 +77,12 @@ async def root(request: Request, search: str = ''):
 templates = Jinja2Templates(directory="templates")
 @app.get("/add-task", response_class=HTMLResponse)
 async def add_task_page(request: Request):
+    user_id = require_authentication(request)
     return templates.TemplateResponse("add-task.html", {"request": request})
 
 @app.post("/add-task")
 async def add_task(request: Request, title: str = Form(...), description: str = Form(...), img_url: str = Form(...)):
+    user_id = require_authentication(request)
     new_task = Task(title=title, description=description, img_url=img_url)
 
     try:
@@ -90,6 +95,7 @@ async def add_task(request: Request, title: str = Form(...), description: str = 
 # Editar tarea
 @app.get("/edit-task/{task_id}", response_class=HTMLResponse)
 async def edit_task_page(request: Request, task_id: int):
+    user_id = require_authentication(request)
     with Session(engine) as session:
         task = session.exec(select(Task).where(Task.id == task_id)).first()
         if not task:
@@ -99,6 +105,7 @@ async def edit_task_page(request: Request, task_id: int):
 
 @app.post("/edit-task/{task_id}")
 async def edit_task(request: Request, task_id: int, title: str = Form(...), description: str = Form(...), img_url: str = Form(...)):
+    user_id = require_authentication(request)
     updated_task = Task(id=task_id, title=title, description=description, img_url=img_url)
     
     try:
@@ -111,6 +118,7 @@ async def edit_task(request: Request, task_id: int, title: str = Form(...), desc
 # borrar tarea
 @app.post("/delete-task/{task_id}")
 async def delete_task(task_id: int):
+    user_id = require_authentication(request)
     try:
         deleteTask(task_id)  # Llama a la función para eliminar la tarea
     except Exception as e:

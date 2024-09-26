@@ -70,7 +70,8 @@ templates = Jinja2Templates(directory="templates")
 async def root(request: Request, search: str = ''):
     user_id = require_authentication(request)
     tasks = readAllTasks(search) 
-    return templates.TemplateResponse("tasks.html", {"request": request,"tasks": tasks})
+    task_count = len(tasks)
+    return templates.TemplateResponse("tasks.html", {"request": request,"tasks": tasks, "task_count": task_count})
 
 
 # Agregar tarea
@@ -117,7 +118,7 @@ async def edit_task(request: Request, task_id: int, title: str = Form(...), desc
 
 # borrar tarea
 @app.post("/delete-task/{task_id}")
-async def delete_task(task_id: int):
+async def delete_task(task_id: int, request: Request):
     user_id = require_authentication(request)
     try:
         deleteTask(task_id)  # Llama a la función para eliminar la tarea

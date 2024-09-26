@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from datetime import datetime, date 
 from sqlmodel import Field, Session, SQLModel, create_engine, select,delete
 import os
 
@@ -18,6 +19,7 @@ class Task(SQLModel, table=True):
     title: str = Field(index=True)
     description: str
     img_url: str = ''
+    created_at: date = Field(default_factory=lambda: datetime.utcnow().date())
 
 
 class Users(SQLModel, table=True):

@@ -30,9 +30,9 @@ class Users(SQLModel, table=True):
     password: str
 
 
-
+# este método permite recuperar tareas de la base de datos y filtrar por un término de búsqueda si se proporciona
 def readAllTasks(search:str):
-    with Session(engine) as session:
+    with Session(engine) as session: #Aquí se inicia una sesión de base de datos 
         tasks = []
         if(search != None):
            tasks = session.exec(select(Task)).all()
@@ -40,8 +40,9 @@ def readAllTasks(search:str):
             tasks = session.exec(select(Task).where(Task.title.like(f'%{search}%'))).all()        
         return tasks
 
+# este método permite recuperar tareas de la base de datos, filtrando por un término de búsqueda si se proporciona
 def createTask(newTask:Task):
-    with Session(engine) as session:
+    with Session(engine) as session: #Aquí se inicia una sesión de base de datos 
         session.add(newTask)
         session.commit()
         session.refresh(newTask)
